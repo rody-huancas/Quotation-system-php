@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 // verificar si estamos en un servidor local
 define('IS_LOCAL', in_array($_SERVER["REMOTE_ADDR"], ["127.0.0.1", "::1"]));
 
@@ -21,6 +23,11 @@ define("UPLOADS", ROOT . "uploads" . DS);
 define('CSS', URL . "assets/css/");
 define('IMG', URL . "assets/images/");
 define('JS', URL . "assets/js/");
+
+// Personalización
+define("APP_NAME", "Cotizador App");
+define("TAXES_RATE", 16); // Porcentaje
+define("SHIPPING", 99.50);
 
 // Cargar todas las funciones
 require_once APP . "functions.php";
