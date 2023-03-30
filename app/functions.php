@@ -211,7 +211,7 @@ function json_output($json)
 
     echo $json;
 
-    return true;
+    exit();
 }
 
 function get_module($view, $data = [])
@@ -243,4 +243,61 @@ function hook_get_quote_res()
     $html  = get_module(MODULES . 'quote_table', $quote);
 
     json_output(json_build(200, ['quote' => $quote, 'html' => $html]));
+}
+
+// agregar concepto
+function hook_add_to_quote()
+{
+    // validar
+    if (!isset($_POST['concepto'], $_POST['tipo'], $_POST['precio_unitario'], $_POST['cantidad'])) {
+        json_output(json_build(403, null, 'Parametros incorrectos.'));
+    }
+
+    $concept  = trim($_POST['concepto']);
+    $type     = trim($_POST['tipo']);
+    $price    = (float) str_replace([',', '$'], '', $_POST['precio_unitario']);
+    $quantity = (int) trim($_POST['cantidad']);
+    $subtotal = (float) $price * $quantity;
+    $taxes    = (float) $subtotal * (TAXES_RATE / 100);
+
+    $item =
+        [
+            'id'       => rand(1111, 9999),
+            'concept'  => $concept,
+            'type'     => $type,
+            'quantity' => $quantity,
+            'price'    => $price,
+            'taxes'    => $taxes,
+            'total'    => $subtotal
+        ];
+
+    if (!add_item($item)) {
+        json_output(json_build(400, null, 'Hubo un problema al guardar el concepto de la cotización'));
+    }
+
+    json_output(json_build(201, get_item($item['id']), 'Concepto agregado correctamente'));
+}
+
+// Reiniciar la cotización
+function hook_restart_quote()
+{
+    $items = get_items();
+
+    if (empty($items)) json_output(json_build(400, null, 'No es necesario reiniciar la cotización, no hay conceptos en ella'));
+
+    if (!restart_quote()) {
+        json_output(json_build(400, null, 'Hubo un problema al reiniciar la cotización.'));
+    } else {
+        json_output(json_build(200, get_quote(), 'La cotización se ha reiniciado con éxito.'));
+    }
+}
+
+// Borrar un concepto de la cotización
+function hook_delete_concept()
+{
+    if (!isset($_POST['id'])) json_output(json_build(403, null, 'Parametros incompletos.'));
+
+    if (!delete_item((int)$_POST['id'])) json_output(json_build(400, null, 'Hubo un problema al eliminar el concepto.'));
+
+    json_output(json_build(200, get_quote(), 'Concepto eliminado con éxito.'));
 }

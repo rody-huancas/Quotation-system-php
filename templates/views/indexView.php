@@ -10,7 +10,7 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-8 col-12">
+        <div class="col-lg-7 col-12">
             <div class="card mb-3">
                 <div class="card-header">Información del cliente</div>
                 <div class="card-body">
@@ -36,7 +36,7 @@
             <div class="card">
                 <div class="card-header">Agregar un nuevo concepto</div>
                 <div class="card-body">
-                    <form action="">
+                    <form id="add_to_quote" method="POST">
                         <div class="form-group row">
                             <div class="col-3">
                                 <label for="concepto">Concepto</label>
@@ -71,10 +71,11 @@
             </div>
         </div>
 
-        <div class="col-lg-4 col-12">
+        <div class="col-lg-5 col-12">
             <div class="card">
                 <div class="card-header">
                     Resumen de cotización
+                    <button class="btn btn-danger float-right restart_quote">Reiniciar</button>
                 </div>
                 <div class="card-body wrapper_quote">
 
