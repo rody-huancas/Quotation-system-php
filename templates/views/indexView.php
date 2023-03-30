@@ -5,7 +5,6 @@
 <div class="container-fluid py-5">
     <div class="row">
         <div class="col-12 wrapper_notifications">
-
         </div>
     </div>
 
@@ -72,6 +71,46 @@
         </div>
 
         <div class="col-lg-5 col-12">
+            <div class="wrapper_update_concept" style="display: none;">
+                <div class="card mb-3">
+                    <div class="card-header">Editando concepto</div>
+                    <div class="card-body">
+                        <form id="save_concept" method="POST">
+                            <input type="hidden" class="form-control" id="id_concepto" name="id_concepto" required>
+                            <div class="form-group d-grid justify-content-center row" style="grid-template-columns: repeat(3, 1fr); grid-gap: 20px;">
+                                <div class="col-5">
+                                    <label for="concepto">Concepto</label>
+                                    <input type="text" class="form-control" id="concepto" name="concepto" placeholder="Ingrese el concepto" required>
+                                </div>
+                                <div class="col-5">
+                                    <label for="tipo">Tipo de producto</label>
+                                    <select name="tipo" id="tipo" class="form-control">
+                                        <option value="producto">Producto</option>
+                                        <option value="servicio">Servicio</option>
+                                    </select>
+                                </div>
+                                <div class="col-5">
+                                    <label for="cantidad">Cantidad</label>
+                                    <input type="number" name="cantidad" id="cantidad" class="form-control" min="1" max="99999" value="1" required>
+                                </div>
+                                <div class="col-5">
+                                    <label for="precio_unitario">Precio Unitario</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">$</span>
+                                        </div>
+                                        <input type="text" class="form-control" id="precio_unitario" name="precio_unitario" placeholder="0.00" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <br>
+                            <button class="btn btn-success" type="submit">Guardar Concepto</button>
+                            <button class="btn btn-danger" type="reset" id="cancel_edit">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     Resumen de cotización
