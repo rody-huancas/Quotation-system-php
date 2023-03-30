@@ -1,5 +1,7 @@
 <?php
 
+use Dompdf\Dompdf;
+
 function get_view($view_name)
 {
     $view = VIEWS . $view_name . "View.php";
@@ -30,6 +32,15 @@ function get_quote()
     recalculate_quote();
 
     return $_SESSION['new_quote'];
+}
+
+function set_client($client)
+{
+    $_SESSION['new_quote']['name']    = trim($client['nombre']);
+    $_SESSION['new_quote']['company'] = trim($client['empresa']);
+    $_SESSION['new_quote']['email']   = trim($client['email']);
+
+    return true;
 }
 
 function recalculate_quote()
@@ -344,4 +355,87 @@ function hook_save_concept()
     }
 
     json_output(json_build(200, get_item($id), 'Cambios guardados correctamente'));
+}
+
+// Generar pdf
+function generate_pdf($filename, $html, $save_to_file = true)
+{
+    // Nombre del archivo
+    $filename = $filename === null ? time() . '.pdf' : $filename . '.pdf';
+
+    // Instanciar la clase
+    $pdf = new Dompdf();
+
+    // Formato
+    $pdf->setPaper('A4');
+
+    // Contenido
+    $pdf->loadHtml($html);
+    $pdf->render();
+
+    if ($save_to_file) {
+        $output = $pdf->output();
+        file_put_contents($filename, $output);
+        return true;
+    }
+
+    $pdf->stream($filename);
+
+    return true;
+}
+
+// Crear el pdf de la cotización
+function hook_generate_quote()
+{
+    // Validar
+    if (!isset($_POST['nombre'], $_POST['empresa'], $_POST['email'])) {
+        json_output(json_build(403, null, 'Parametros incompletos.'));
+    }
+
+    // Validar correo
+    if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {
+        json_output(json_build(400, null, 'Dirección de correo no válida.'));
+    }
+
+    // Guardar información del cliente
+    $client =
+        [
+            'nombre'  => $_POST['nombre'],
+            'empresa' => $_POST['empresa'],
+            'email'   => $_POST['email']
+        ];
+    set_client($client);
+
+    // Cargar cotización
+    $quote    = get_quote();
+
+    if (empty($quote['items'])) {
+        json_output(json_build(400, null, 'No hay conceptos en la cotización.'));
+    }
+
+    $module       = MODULES . 'pdf_template';
+    $html         = get_module($module, $quote);
+    $filename     = 'coty_' . $quote['number'];
+    $download     = sprintf(URL . 'pdf.php?number=%s', $quote['number']); // pdf.php?number=123456
+    $quote['url'] = $download;
+
+    // Generar pdf y guardarlo en servidor
+    if (!generate_pdf(UPLOADS . $filename, $html)) {
+        json_output(json_build(400, null, 'Hubo un problema al generar la cotización.'));
+    }
+
+    json_output(json_build(200, $quote, 'Cotización generada con éxito.'));
+}
+
+// Cargar todas las cotizaciones
+function get_all_quotes()
+{
+    return $quotes = glob(UPLOADS . 'coty_*.pdf');
+}
+
+// Redirección
+function redirect($route)
+{
+    header(sprintf('Location: %s', $route));
+    exit;
 }
