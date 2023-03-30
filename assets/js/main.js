@@ -122,7 +122,11 @@ $("document").ready(() => {
         e.preventDefault();
 
         let button = $(this),
-            action = 'restart_quote';
+            action = 'restart_quote',
+            download = $('#download_quote'),
+            send = $('#send_quote'),
+            generate = $('#generate_quote'),
+            default_text = 'Generar cotización';
 
         if (!confirm('¿Estás seguro?')) return false;
 
@@ -134,6 +138,11 @@ $("document").ready(() => {
             data: { action }
         }).done(res => {
             if (res.status === 200) {
+                download.fadeOut();
+                download.attr('href', '');
+                send.fadeOut();
+                send.attr('data-number', '');
+                generate.html(default_text);
                 notify(res.msg);
                 get_quote();
             } else {
@@ -357,6 +366,52 @@ $("document").ready(() => {
                 download.fadeOut();
                 send.attr('data-number', '');
                 send.fadeOut();
+                button.html('Reintentar');
+            }
+        }).fail(err => {
+            notify('Hubo un problema con la petición, intenta de nuevo.', 'danger');
+            button.html(default_text);
+        }).always(() => {
+            $('body').waitMe('hide');
+        });
+    }
+
+    // Enviar por correo electrónico
+    $('#send_quote').on('click', send_quote);
+    function send_quote(e) {
+        e.preventDefault();
+
+        let button = $(this),
+            default_text = button.html(), // "Enviar por correo"
+            new_text = 'Volver a enviar',
+            number = button.data('number'),
+            action = 'send_quote';
+
+        // Validando la acción
+        if (!confirm('¿Estás seguro?')) return false;
+
+        if (number === '') {
+            notify('El folio de cotización no es válido', 'danger');
+            return false;
+        }
+
+        // Petición
+        $.ajax({
+            url: 'ajax.php',
+            type: 'POST',
+            dataType: 'json',
+            cache: false,
+            data: { action, number },
+            beforeSend: () => {
+                $('body').waitMe();
+                button.html('Enviando...');
+            }
+        }).done(res => {
+            if (res.status === 200) {
+                notify(res.msg);
+                button.html(new_text);
+            } else {
+                notify(res.msg, 'danger');
                 button.html('Reintentar');
             }
         }).fail(err => {

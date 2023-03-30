@@ -1,10 +1,7 @@
 <!-- FOOTER -->
 <footer class="text-muted py-5">
-    <div class="container">
-        <p class="float-right">
-            <a href="#">Arriba</a>
-        </p>
-        <p><a href="https://getbootstrap.com/">Cotizador App</a> &copy; Todos los derechos reservados <?php echo date("Y") ?>.</p>
+    <div class="container text-center">
+        <p> <strong>Cotizador App</strong> &copy; Todos los derechos reservados <?php echo date("Y") ?>.</p>
     </div>
 </footer>
 <!-- END FOOTER -->

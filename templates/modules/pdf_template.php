@@ -35,6 +35,7 @@
         <tr>
             <td valign="top"><img src="<?php echo IMG . 'company.png'; ?>" alt="" width="150" /></td>
             <td align="right">
+                <h2 style="color: red;"><?php echo sprintf('#%s', $d->number) ?></h2>
                 <h3><?php echo APP_NAME; ?></h3>
                 <pre>
                     Jhon Doe CEO

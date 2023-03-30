@@ -1,6 +1,7 @@
 <?php
 
 use Dompdf\Dompdf;
+use PHPMailer\PHPMailer\PHPMailer;
 
 function get_view($view_name)
 {
@@ -48,7 +49,7 @@ function recalculate_quote()
     $items    = [];
     $subtotal = 0;
     $taxes    = 0;
-    $shipping = 0;
+    $shipping = SHIPPING;
     $total    = 0;
 
     if (!isset($_SESSION["new_quote"])) return false;
@@ -64,7 +65,6 @@ function recalculate_quote()
         }
     }
 
-    $shipping = $_SESSION["new_quote"]["shipping"];
     $total    = $subtotal + $taxes + $shipping;
 
     $_SESSION["new_quote"]["subtotal"] = $subtotal;
@@ -438,4 +438,66 @@ function redirect($route)
 {
     header(sprintf('Location: %s', $route));
     exit;
+}
+
+// Envíar nuevo correo electónico
+function send_mail($data)
+{
+    $mail = new PHPMailer();
+    $mail->setFrom(APP_EMAIL, APP_NAME); //emite
+    $mail->addAddress($data['email'], empty($data['name']) ? null : $data['name']); //destino
+    $mail->Subject = $data['subject'];
+    $mail->msgHTML(get_module(MODULES . 'email_template', $data));
+    $mail->AltBody = $data['alt_text']; // Alternativo
+    $mail->CharSet = 'UTF-8'; //Charset
+
+    if (!empty($data['attachments'])) {
+        foreach ($data['attachments'] as $file) {
+            $mail->addAttachment($file);
+        }
+    }
+
+    if (!$mail->send()) return false;
+
+    return true;
+}
+
+function hook_send_quote()
+{
+    if (!isset($_POST['number'])) {
+        json_output(json_build(403, null, 'Parametros incompletos.'));
+    }
+
+    // Validar correo
+    $number = $_POST['number'];
+    $quote  = get_quote();
+    if (!filter_var($quote['email'], FILTER_VALIDATE_EMAIL)) {
+        json_output(json_build(400, null, 'Dirección de correo no válida.'));
+    }
+
+    // Validar la existencia de la cotización
+    $file = sprintf(UPLOADS . 'coty_%s.pdf', $number);
+    if (!is_file($file)) {
+        json_output(json_build(400, null, 'La cotización no existe.'));
+    }
+
+    // Guardar información para el correo
+    $body = '<h1>Nueva cotización</h1><br><p>Hola <b>%s</b>, has recibido una cotización con folio <b>%s</b> por parte de <b>%s</b>, se encuentra adjunta a este correo.</p>';
+    $body = sprintf($body, $quote['name'], $number, APP_NAME);
+    $email_data =
+        [
+            'subject'     => sprintf('Cotización número %s recibida', $number),
+            'alt_text'    => sprintf('Nueva cotización de %s recibida', APP_NAME),
+            'body'        => $body,
+            'name'        => $quote['name'],
+            'email'       => $quote['email'],
+            'attachments' => [$file]
+        ];
+
+    // Generar pdf y guardarlo en servidor
+    if (!send_mail($email_data)) {
+        json_output(json_build(400, null, 'Hubo un problema al enviar el correo.'));
+    }
+
+    json_output(json_build(200, $quote, 'Cotización enviada con éxito.'));
 }
