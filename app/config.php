@@ -26,7 +26,7 @@ define('JS', URL . "assets/js/");
 
 // Personalización
 define("APP_NAME", "Cotizador App");
-define("TAXES_RATE", 16); // Porcentaje
+define("TAXES_RATE", 18); // Porcentaje
 define("SHIPPING", 99.50);
 
 // Cargar todas las funciones

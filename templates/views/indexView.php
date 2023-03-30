@@ -4,6 +4,12 @@
 <!-- CONTENT -->
 <div class="container-fluid py-5">
     <div class="row">
+        <div class="col-12 wrapper_notifications">
+
+        </div>
+    </div>
+
+    <div class="row">
         <div class="col-lg-8 col-12">
             <div class="card mb-3">
                 <div class="card-header">Información del cliente</div>
@@ -70,49 +76,8 @@
                 <div class="card-header">
                     Resumen de cotización
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-striped table-bordered">
-                            <thead>
-                                <th>Concepto</th>
-                                <th>Cantidad</th>
-                                <th>Precio</th>
-                                <th class="text-right">Subtotal</th>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Playera</td>
-                                    <td>1</td>
-                                    <td>$399.00</td>
-                                    <td class="text-right">$399.00</td>
-                                </tr>
-                                <tr>
-                                    <td>Ukelele</td>
-                                    <td>2</td>
-                                    <td>$250.00</td>
-                                    <td class="text-right">$500.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-right" colspan="3">Subtotal</td>
-                                    <td class="text-right">$123.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-right" colspan="3">Impuestos</td>
-                                    <td class="text-right">$123.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-right" colspan="3">Envío</td>
-                                    <td class="text-right">$50.00</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-right" colspan="4">
-                                        <b>Total</b>
-                                        <h3 class="text-success"><b>$799.00</b></h3>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="card-body wrapper_quote">
+
                 </div>
                 <div class="card-footer">
                     <button class="btn btn-primary">Descargar PDF</button>

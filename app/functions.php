@@ -11,24 +11,25 @@ function get_view($view_name)
 
 function get_quote()
 {
-    if (!isset($_SESSION["new_quote"])) {
-        return $_SESSION["new_quote"] = [
-            'number'   => rand(111111, 999999),
-            'name'     => '',
-            'company'  => '',
-            'email'    => '',
-            'items'    => [],
-            'subtotal' => 0,
-            'taxes'    => 0,
-            'shipping' => 0,
-            'total'    => 0
-        ];
-
-        // calcular todos los totales
-        recalculate_quote();
-
-        return $_SESSION["new_quote"];
+    if (!isset($_SESSION['new_quote'])) {
+        return $_SESSION['new_quote'] =
+            [
+                'number'   => rand(111111, 999999),
+                'name'     => '',
+                'company'  => '',
+                'email'    => '',
+                'items'    => [],
+                'subtotal' => 0,
+                'taxes'    => 0,
+                'shipping' => 0,
+                'total'    => 0
+            ];
     }
+
+    // recalcular todos los totales
+    recalculate_quote();
+
+    return $_SESSION['new_quote'];
 }
 
 function recalculate_quote()
@@ -211,4 +212,35 @@ function json_output($json)
     echo $json;
 
     return true;
+}
+
+function get_module($view, $data = [])
+{
+    $view = $view . '.php';
+    if (!is_file($view)) {
+        return false;
+    }
+
+    $d = $data = json_decode(json_encode($data)); // conversión a objeto
+
+    ob_start();
+    require_once $view;
+    $output = ob_get_clean();
+
+    return $output;
+}
+
+function hook_mi_funcion()
+{
+    echo 'Estoy siendo ejecutada en ajax.php de forma automática';
+}
+
+function hook_get_quote_res()
+{
+
+    // Vamos a cargar la cotización
+    $quote = get_quote();
+    $html  = get_module(MODULES . 'quote_table', $quote);
+
+    json_output(json_build(200, ['quote' => $quote, 'html' => $html]));
 }
